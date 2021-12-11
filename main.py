@@ -125,3 +125,6 @@ print(f"Win Ratio: {win_ratio}")
 
 plt.hist(all_profit, bins=100)
 plt.show()
+
+#TODO Add Binance API
+#TODO Backtest strategy with Binance
