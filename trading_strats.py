@@ -1,6 +1,8 @@
 import pandas as pd
 import yfinance as yf
 
+#TODO: Not happy that yahoo data is pulled here.
+
 class TradingStrats():
 
     def rsi_calc(self, asset, start_date='2011-01-01'):
@@ -21,4 +23,14 @@ class TradingStrats():
                                                       'RSI'] < 30), 'Buy'] = 'Yes'  # if adj closing price is higher than the MA200 and RSI is less than 30: buy
         df.loc[(df['Adj Close'] < df['MA200']) | (df[
                                                       'RSI'] > 30), 'Buy'] = 'No'  # if adj closing price is lower than the MA200 and the RSI is higher than: do not buy
+        return df
+
+    def MACD(self, asset, start_date='2010-01-01'):
+        df = yf.download(asset, start=start_date)
+        df['EMA12'] = df.Close.ewm(span=12).mean()
+        df['EMA26'] = df.Close.ewm(span=26).mean()
+        df['MACD'] = df.EMA12 - df.EMA26
+        df['signal'] = df.MACD.ewm(span=9).mean()
+        print("Indicators Added")
+
         return df
