@@ -9,7 +9,7 @@ graph = Graph()
 
 class Datamanager():
     
-    def get_signals(self, df):
+    def get_rsi_signals(self, df):
         buying_dates = []
         selling_dates = []
 
@@ -25,22 +25,47 @@ class Datamanager():
 
         return buying_dates, selling_dates
 
-    def back_test(self, assets):
+    def get_macd_signals(self, df):
+        buying_dates, selling_dates = [], []
+
+        for i in range(2, len(df)):
+            if df.MACD.iloc[i] > df.signal.iloc[i] and df.MACD.iloc[i-1] < df.signal.iloc[i-1]:
+                buying_dates.append(i)
+            elif df.MACD.iloc[i] < df.signal.iloc[i] and df.MACD.iloc[i-1] > df.signal.iloc[i-1]:
+                selling_dates.append(i)
+
+
+
+    def back_test(self, assets, strat):
         matrix_signals = []
         matrix_profits = []
+        if strat == 'rsi':
+            for i in range(len(assets)):
+                try:
+                    frame = strats.rsi_calc(assets[i])
+                except ValueError:
+                    print(f"Frame {i} generated a Value Error")
+                else:
+                    buy, sell = self.get_rsi_signals(frame)
+                    profits = (frame.loc[sell].Open.values - frame.loc[buy].Open.values) / frame.loc[buy].Open.values
+                    matrix_signals.append(buy)
+                    matrix_profits.append(profits)
 
-        for i in range(len(assets)):
-            try:
-                frame = strats.rsi_calc(assets[i])
-            except ValueError:
-                print(f"Frame {i} generated a Value Error")
-            else:
-                buy, sell = self.get_signals(frame)
-                profits = (frame.loc[sell].Open.values - frame.loc[buy].Open.values) / frame.loc[buy].Open.values
-                matrix_signals.append(buy)
-                matrix_profits.append(profits)
+        #TODO: Finish adding macd signal
 
-                # graph.scatter(matrix_profits, matrix_signals, frame['Adj Close'])
+        # if strat == 'macd':
+        #     real_buys = [i + 1 for i in buy]
+        #     real_sells = [i + 1 for i in sell]
+        #
+        #     buy_prices = df.Open.iloc[real_buys]
+        #     sell_prices = df.Open.iloc[real_sells]
+        #
+        #
+        #     if sell_prices.index[0] < buy_prices.index[0]:
+        #         sell_prices = sell_prices.drop(sell_prices.index[0])
+        #     elif buy_prices.index[-1] > sell_prices.index[-1]:
+        #         buy_prices = buy_prices.drop(buy_prices.index[-1])
+
 
         all_profit = []
 
