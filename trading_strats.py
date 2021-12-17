@@ -25,7 +25,7 @@ class TradingStrats():
                                                       'RSI'] > 30), 'Buy'] = 'No'  # if adj closing price is lower than the MA200 and the RSI is higher than: do not buy
         return df
 
-    def MACD(self, asset, start_date='2010-01-01'):
+    def macd_calc(self, asset, start_date='2010-01-01'):
         df = yf.download(asset, start=start_date)
         df['EMA12'] = df.Close.ewm(span=12).mean()
         df['EMA26'] = df.Close.ewm(span=26).mean()
