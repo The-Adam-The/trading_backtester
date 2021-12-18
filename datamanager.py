@@ -52,36 +52,41 @@ class Datamanager():
 
         #TODO: Finish adding macd signal
 
-        if strat == 'macd':
+        # if strat == 'macd':
+        #
+        #     buying_dates, selling_dates = [], []
+        #
+        #     for i in range(len(assets)):
+        #         frame = strats.macd_calc(assets[i])
+        #
+        #         for i in range(2, len(assets)):
+        #             if frame.MACD.iloc[i] > frame.signal.iloc[i] and frame.MACD.iloc[i - 1] < frame.signal.iloc[i - 1]:
+        #                 buying_dates.append(i)
+        #             elif frame.MACD.iloc[i] < frame.signal.iloc[i] and frame.MACD.iloc[i - 1] > frame.signal.iloc[i - 1]:
+        #                 selling_dates.append(i)
+        #
+        #         real_buys = [i + 1 for i in buying_dates]
+        #         real_sells = [i + 1 for i in selling_dates]
+        #
+        #         matrix_signals.append(buying_dates)
+        #
+        #         buy_prices = frame.Open.iloc[real_buys]
+        #         sell_prices = frame.Open.iloc[real_sells]
 
-            buying_dates, selling_dates = [], []
 
-            for i in range(len(assets)):
-                frame = strats.macd_calc(assets[i])
-
-                for i in range(2, len(assets)):
-                    if frame.MACD.iloc[i] > frame.signal.iloc[i] and frame.MACD.iloc[i - 1] < frame.signal.iloc[i - 1]:
-                        buying_dates.append(i)
-                    elif frame.MACD.iloc[i] < frame.signal.iloc[i] and frame.MACD.iloc[i - 1] > frame.signal.iloc[i - 1]:
-                        selling_dates.append(i)
-
-                real_buys = [i + 1 for i in buying_dates]
-                real_sells = [i + 1 for i in selling_dates]
-
-                buy_prices = frame.Open.iloc[real_buys]
-                sell_prices = frame.Open.iloc[real_sells]
-
-
-                if sell_prices.index[0] < buy_prices.index[0]:
-                    sell_prices = sell_prices.drop(sell_prices.index[0])
-                elif buy_prices.index[-1] > sell_prices.index[-1]:
-                    buy_prices = buy_prices.drop(buy_prices.index[-1])
-
-                matrix_signals.append(buying_dates)
-
-                for i in range(len(sell_prices)):
-
-                    matrix_profits.append((sell_prices[i] - buy_prices[i])/buy_prices[i])
+                # if sell_prices.index[0] < buy_prices.index[0]:
+                #     sell_prices = sell_prices.drop(sell_prices.index[0])
+                # elif buy_prices.index[-1] > sell_prices.index[-1]:
+                #     buy_prices = buy_prices.drop(buy_prices.index[-1])
+                #
+                #
+                # for i in range(len(sell_prices)):
+                #     try:
+                #         matrix_profits.append((sell_prices[i] - buy_prices[i])/buy_prices[i])
+                #     except IndexError:
+                #         print("Index Error")
+                #
+                # print(matrix_profits)
 
                 # average_profit = sum(matrix_profits)/len(matrix_profits)
                 # print(average_profit)
@@ -90,8 +95,11 @@ class Datamanager():
         all_profit = []
 
         for i in matrix_profits:
-            for e in i:
-                all_profit.append(e)
+            if strat == 'rsi':
+                for e in i:
+                    all_profit.append(e)
+            else:
+                all_profit.append(i)
 
         wins = [i for i in all_profit if i > 0]
         n_wins = len(wins)

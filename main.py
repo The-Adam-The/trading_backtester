@@ -17,6 +17,7 @@ graph = Graph()
 ASSETS = 'TSLA'
 
 #TODO: Continue implementing macd backtest method
+#TODO: Store pulled data into database
 #TODO: Graph and calculate total profits based upon investment amount
 #TODO: remove issue of overlapping trades
 #TODO: Add Binance API
@@ -27,11 +28,13 @@ ASSETS = 'TSLA'
 
 #Select asset
 ASSETS = scraper.pull_sp500(20)
-win_ratio, wins, n_wins, losses, n_losses, all_profit = data.back_test(ASSETS, 'macd')
+win_ratio, wins, n_wins, losses, n_losses, all_profit = data.back_test(ASSETS, 'rsi')
 
 print(f"Win Ratio: {win_ratio}")
 print(f"Wins: {n_wins}")
 print(f"Losses: {n_losses}")
+
+
 
 
 
@@ -70,7 +73,7 @@ print(f"Losses: {n_losses}")
 #
 # average_profit = sum(profititsrel)/len(profititsrel)
 # print(average_profit)
-
-
-
-# graph.histogram(all_profit)
+#
+#
+#
+# # graph.histogram(all_profit)
