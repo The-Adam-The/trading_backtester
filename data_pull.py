@@ -1,5 +1,13 @@
 import pandas as pd
 pd.options.mode.chained_assignment = None
+import sqlite3
+
+
+connection = sqlite3.connect('TradingData.db')
+cursor = connection.cursor()
+
+# cursor.execute('CREATE TABLE sp500tickers(ticker TEXT)')
+# connection.commit()
 
 class Scraper:
 
@@ -10,4 +18,19 @@ class Scraper:
         tickers = tickers.Symbol.to_list()
         # '.' causes errors
         tickers = [i.replace('.', '-') for i in tickers]
+
+        for ticker in tickers:
+            cursor.execute("INSERT INTO sp500tickers VALUES(?)", (ticker,))
+            connection.commit()
+
         return tickers
+
+    def fetch_sp500_tickers(self):
+        cursor.execute("SELECT * FROM sp500tickers")
+
+        tickers = []
+        for ticker, in cursor.execute("SELECT * FROM sp500tickers"):
+                tickers.append(ticker)
+
+        return tickers
+

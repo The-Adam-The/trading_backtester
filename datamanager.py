@@ -2,9 +2,14 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 from trading_strats import TradingStrats
 from graphing import Graph
+import sqlite3
 
+connection = sqlite3.connect('TradingData.db')
+cursor = connection.cursor()
 strats = TradingStrats()
 graph = Graph()
+
+
 
 
 class Datamanager():
@@ -20,7 +25,11 @@ class Datamanager():
 
 
 
-    def back_test(self, assets, strat):
+    def new_back_test(self, name, date, assets, strat):
+
+       # cursor.execute(f'CREATE TABLE {name}{date}(ticker TEXT, date TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER',
+       #                f'adj close INTEGER, volume INTEGER, ma200 INTEGER, price_change INTEGER, upmove INTEGER, downmove INTEGER,'
+       #                f'avg_up INTEGER, avg_down INTEGER, rs INTEGER, rsi, INTEGER, buy TEXT, )')
 
         matrix_signals = []
         matrix_profits = []
@@ -109,3 +118,39 @@ class Datamanager():
 
         return win_ratio, wins, n_wins, losses, n_losses, all_profit
 
+
+# graph.line_plot(df.signal, df.MACD, 'signal', 'MACD')
+
+# buy, sell = [], []
+#
+# for i in range(2, len(df)):
+#     if df.MACD.iloc[i] > df.signal.iloc[i] and df.MACD.iloc[i-1] < df.signal.iloc[i-1]:
+#         buy.append(i)
+#     elif df.MACD.iloc[i] < df.signal.iloc[i] and df.MACD.iloc[i-1] > df.signal.iloc[i-1]:
+#         sell.append(i)
+#
+# graph.macd_scatter(df.iloc[buy].index, df.iloc[buy].Close, df.iloc[sell].index, df.iloc[sell].Close, df.Close, 'TSLA Close')
+#
+# real_buys = [i + 1 for i in buy]
+# real_sells = [i + 1 for i in sell]
+#
+# buy_prices = df.Open.iloc[real_buys]
+# sell_prices = df.Open.iloc[real_sells]
+#
+#
+# if sell_prices.index[0] < buy_prices.index[0]:
+#     sell_prices = sell_prices.drop(sell_prices.index[0])
+# elif buy_prices.index[-1] > sell_prices.index[-1]:
+#     buy_prices = buy_prices.drop(buy_prices.index[-1])
+#
+# profititsrel = []
+#
+# for i in range(len(sell_prices)):
+#     profititsrel.append((sell_prices[i] - buy_prices[i])/buy_prices[i])
+#
+# average_profit = sum(profititsrel)/len(profititsrel)
+# print(average_profit)
+#
+#
+#
+# # graph.histogram(all_profit)

@@ -7,73 +7,72 @@ from data_pull import Scraper
 from trading_strats import TradingStrats
 from datamanager import Datamanager
 pd.options.mode.chained_assignment = None
+import sqlite3
+
+connection = sqlite3.connect('TradingData.db')
+cursor = connection.cursor()
+
+
 
 scraper = Scraper()
-strats = TradingStrats()
-data = Datamanager()
-graph = Graph()
-
-
-ASSETS = 'TSLA'
-
-#TODO: Continue implementing macd backtest method
-#TODO: Store pulled data into database
-#TODO: Graph and calculate total profits based upon investment amount
-#TODO: remove issue of overlapping trades
-#TODO: Add Binance API
-#TODO: Backtest strategy with Binance
-
-
-
-
-#Select asset
-ASSETS = scraper.pull_sp500(20)
-win_ratio, wins, n_wins, losses, n_losses, all_profit = data.back_test(ASSETS, 'rsi')
-
-print(f"Win Ratio: {win_ratio}")
-print(f"Wins: {n_wins}")
-print(f"Losses: {n_losses}")
-
-
-
-
-
-
-
-
-
-# graph.line_plot(df.signal, df.MACD, 'signal', 'MACD')
-
-# buy, sell = [], []
-#
-# for i in range(2, len(df)):
-#     if df.MACD.iloc[i] > df.signal.iloc[i] and df.MACD.iloc[i-1] < df.signal.iloc[i-1]:
-#         buy.append(i)
-#     elif df.MACD.iloc[i] < df.signal.iloc[i] and df.MACD.iloc[i-1] > df.signal.iloc[i-1]:
-#         sell.append(i)
-#
-# graph.macd_scatter(df.iloc[buy].index, df.iloc[buy].Close, df.iloc[sell].index, df.iloc[sell].Close, df.Close, 'TSLA Close')
-#
-# real_buys = [i + 1 for i in buy]
-# real_sells = [i + 1 for i in sell]
-#
-# buy_prices = df.Open.iloc[real_buys]
-# sell_prices = df.Open.iloc[real_sells]
+# strats = TradingStrats()
+# data = Datamanager()
+# graph = Graph()
 #
 #
-# if sell_prices.index[0] < buy_prices.index[0]:
-#     sell_prices = sell_prices.drop(sell_prices.index[0])
-# elif buy_prices.index[-1] > sell_prices.index[-1]:
-#     buy_prices = buy_prices.drop(buy_prices.index[-1])
+# ASSETS = 'TSLA'
 #
-# profititsrel = []
-#
-# for i in range(len(sell_prices)):
-#     profititsrel.append((sell_prices[i] - buy_prices[i])/buy_prices[i])
-#
-# average_profit = sum(profititsrel)/len(profititsrel)
-# print(average_profit)
+# #TODO: Continue implementing macd backtest method
+# #TODO: Store pulled data into database
+# #TODO: Graph and calculate total profits based upon investment amount
+# #TODO: remove issue of overlapping trades
+# #TODO: Add Binance API
+# #TODO: Backtest strategy with Binance
 #
 #
 #
-# # graph.histogram(all_profit)
+#
+
+# cursor.execute("CREATE TABLE sp500data(ticker TEXT, date TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER, adj_close INTEGER, volume INTEGER)")
+
+
+
+
+# #Select asset
+ASSETS = scraper.fetch_sp500_tickers()
+
+df = yf.download(ASSETS[:2], start='2011-01-01')
+#
+# df.pivot(index="ticker")
+
+test_df = []
+print(df)
+
+
+
+
+        # cursor.execute("INSERT INTO sp500data VALUES(?,?,?,?,?,?,?,?)",
+        #                (asset, row['Date'], row['Open'], row['High'], row['Low'], row['Close'], row['Adj Close'], row['Volume']))
+
+        # test_df.append(asset, row['Date'], row['Open'], row['High'], row['Low'], row['Close'], row['Adj Close'], row['Volume'])
+
+# for row in cursor:
+#     print(row)
+
+
+# for row in test_df:
+#     print(row)
+
+# win_ratio, wins, n_wins, losses, n_losses, all_profit = data.back_test(ASSETS, 'rsi')
+#
+# print(f"Win Ratio: {win_ratio}")
+# print(f"Wins: {n_wins}")
+# print(f"Losses: {n_losses}")
+
+
+
+
+
+
+
+
