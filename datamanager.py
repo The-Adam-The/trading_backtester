@@ -2,12 +2,14 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 from trading_strats import TradingStrats
 from graphing import Graph
+from  data_pull import Scraper
 import sqlite3
 
 connection = sqlite3.connect('TradingData.db')
 cursor = connection.cursor()
 strats = TradingStrats()
 graph = Graph()
+data_pull = Scraper()
 
 
 
@@ -25,11 +27,14 @@ class Datamanager():
 
 
 
-    def new_back_test(self, name, date, assets, strat):
+    def new_back_test(self, strat, asset_names, start_date='2010-01-01'):
 
-       # cursor.execute(f'CREATE TABLE {name}{date}(ticker TEXT, date TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER',
-       #                f'adj close INTEGER, volume INTEGER, ma200 INTEGER, price_change INTEGER, upmove INTEGER, downmove INTEGER,'
-       #                f'avg_up INTEGER, avg_down INTEGER, rs INTEGER, rsi, INTEGER, buy TEXT, )')
+
+
+        assets = data_pull.fetch_sp500_data_db(asset_names,start_date)
+
+
+
 
         matrix_signals = []
         matrix_profits = []
@@ -38,7 +43,7 @@ class Datamanager():
 
             for i in range(len(assets)):
                 try:
-                    frame = strats.rsi_calc(assets[i])
+                    frame = strats.rsi_calc(assets[i][1])
                 except ValueError:
                     print(f"Frame {i} generated a Value Error")
                 else:

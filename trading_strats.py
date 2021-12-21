@@ -1,12 +1,17 @@
 import pandas as pd
 import yfinance as yf
+from  data_pull import Scraper
+
+asset_data = Scraper()
 
 #TODO: Not happy that yahoo data is pulled here.
 
 class TradingStrats():
 
     def rsi_calc(self, asset, start_date='2011-01-01'):
-        df = yf.download(asset, start=start_date)
+
+        df = asset
+
         df['MA200'] = df['Adj Close'].rolling(
             window=200).mean()  # Get the rolling mean for the adjusted closing price from the last 200 days
         df['price change'] = df['Adj Close'].pct_change()  # Get daily relative returns
