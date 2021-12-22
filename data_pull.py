@@ -58,15 +58,20 @@ class Scraper:
                     if db_name == ('sp500tickers',):
                         print("Ticker Table Removed")
                         continue
+                    # print(f"db_name: {db_name}")
 
-                    amended_db_name = db_name[0].replace("TradeData", "")
+                    amended_asset_name = "TradeData" + asset_name
+                    # print(f"amended_asset_name: {amended_asset_name}")
 
-                    if amended_db_name == asset_name:
-                        db_list.append(amended_db_name)
+                    if db_name[0] == amended_asset_name:
+                        print(f"Database Found for {db_name}")
+                        db_list.append(db_name)
 
         for x in db_list:
             try:
+                print(f"x: {x}")
                 df = pd.read_sql_query('SELECT * FROM ' + x[0], connection)
+
                 amended_x = x[0].replace('TradeData', 'Ticker: ')
                 df_stack.append([amended_x, df])
             except sqlite3.Error as e:

@@ -77,7 +77,14 @@ class Datamanager():
         n_wins = len(wins)
         losses = [i for i in all_profit if i <= 0]
         n_losses = len(losses)
-        win_ratio = len(wins) / len(all_profit)
+
+        win_ratio = 0
+
+        try:
+            win_ratio = len(wins) / len(all_profit)
+        except ZeroDivisionError:
+            print(f"ZeroDivisionError \nNumber of wins: {len(wins)} \nNumber of Trades: {len(all_profit)}")
+
 
         return win_ratio, wins, n_wins, losses, n_losses, all_profit
 
