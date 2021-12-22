@@ -32,10 +32,10 @@ asset_names = scraper.fetch_sp500_tickers()
 
 # search_assets = ['TSLA', 'VTR', 'GM']
 search_assets = ['VTR']
-# search_assets = ['all']
+# search_assets = ['All']
 
 
-win_ratio, wins, n_wins, losses, n_losses, all_profit = data.new_back_test('rsi',search_assets)
+win_ratio, wins, n_wins, losses, n_losses, all_profit = data.new_back_test('rsi', search_assets)
 
 print(f"Win Ratio: {win_ratio}")
 print(f"Wins: {n_wins}")

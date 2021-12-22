@@ -41,7 +41,7 @@ class Scraper:
                 tickers.append(ticker)
 
         return tickers
-#TODO: fix asset selection algorithm in scraper.fetch_sp500_data_db()
+
     def fetch_sp500_data_db(self, asset_names, start_date):
 
         df_stack = []
@@ -49,25 +49,20 @@ class Scraper:
         # connection.row_factory = sqlite3.Row
         for asset_name in asset_names:
             print(f"asset_name: {asset_name}")
-            for db_name in connection.execute('SELECT name FROM sqlite_master WHERE type="table" ORDER BY name').fetchall():
 
-                if db_name == ('sp500tickers',):
-                    print("Ticker Table Removed")
-                    continue
+            if asset_name.lower() == 'all':
+                db_list = connection.execute('SELECT name FROM sqlite_master WHERE type="table" ORDER BY name').fetchall()
 
-                if asset_name == 'all':
-                    db_list.append(db_name)
+            else:
+                for db_name in connection.execute('SELECT name FROM sqlite_master WHERE type="table" ORDER BY name').fetchall():
+                    if db_name == ('sp500tickers',):
+                        print("Ticker Table Removed")
+                        continue
 
-                if db_name == f"TradeDate{asset_name}":
-                    db_list.append(db_name)
-                # else:
-                    # try:
-                    #     df = yf.download(asset_name, start_date)
-                    #     df_stack.append([asset_name, df])
-                    # except:
-                    #     print("Asset not found")
-                print(db_list)
+                    amended_db_name = db_name[0].replace("TradeData", "")
 
+                    if amended_db_name == asset_name:
+                        db_list.append(amended_db_name)
 
         for x in db_list:
             try:

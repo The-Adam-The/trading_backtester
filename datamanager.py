@@ -35,7 +35,6 @@ class Datamanager():
 
 
 
-
         matrix_signals = []
         matrix_profits = []
 
@@ -64,9 +63,31 @@ class Datamanager():
                     matrix_signals.append(buying_dates)
                     matrix_profits.append(profits)
 
-        #TODO: Finish adding macd signal
 
-        # if strat == 'macd':
+        all_profit = []
+
+        for i in matrix_profits:
+            if strat == 'rsi':
+                for e in i:
+                    all_profit.append(e)
+            else:
+                all_profit.append(i)
+
+        wins = [i for i in all_profit if i > 0]
+        n_wins = len(wins)
+        losses = [i for i in all_profit if i <= 0]
+        n_losses = len(losses)
+        win_ratio = len(wins) / len(all_profit)
+
+        return win_ratio, wins, n_wins, losses, n_losses, all_profit
+
+
+
+
+
+
+#TODO: Finish adding macd signal
+ # if strat == 'macd':
         #
         #     buying_dates, selling_dates = [], []
         #
@@ -106,22 +127,6 @@ class Datamanager():
                 # print(average_profit)
 
 
-        all_profit = []
-
-        for i in matrix_profits:
-            if strat == 'rsi':
-                for e in i:
-                    all_profit.append(e)
-            else:
-                all_profit.append(i)
-
-        wins = [i for i in all_profit if i > 0]
-        n_wins = len(wins)
-        losses = [i for i in all_profit if i <= 0]
-        n_losses = len(losses)
-        win_ratio = len(wins) / len(all_profit)
-
-        return win_ratio, wins, n_wins, losses, n_losses, all_profit
 
 
 # graph.line_plot(df.signal, df.MACD, 'signal', 'MACD')
