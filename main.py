@@ -8,6 +8,11 @@ from trading_strats import TradingStrats
 from datamanager import Datamanager
 pd.options.mode.chained_assignment = None
 import sqlite3
+import datetime
+
+
+datetime_now = datetime.datetime.now()
+
 
 connection = sqlite3.connect('sp500tradedata.db')
 cursor = connection.cursor()
@@ -27,27 +32,28 @@ data = Datamanager()
 # #TODO: Add Binance API
 # #TODO: Backtest strategy with Binance
 
-
-
+start_date = '2011-01-01'
+end_date = datetime_now.strftime('%Y-%m-%d')
 
 
 # asset_names = scraper.fetch_sp500_tickers()
 
 # search_assets = ['TSLA', 'VTR', 'GM']
-# search_assets = ['VTR']
-search_assets = ['all_assets']
+search_assets = ['VTR']
+# search_assets = ['all_assets']
 #
 #
-win_ratio, wins, n_wins, losses, n_losses, all_profit, capital = data.new_back_test('rsi', search_assets)
+win_ratio, wins, n_wins, losses, n_losses, all_profit, capital = data.new_back_test('rsi', search_assets, start_date, end_date)
 
 print(f"Win Ratio: {win_ratio}")
 print(f"Wins: {n_wins}")
 print(f"Losses: {n_losses}")
 print(f"Capital: {capital}")
 
-
-
-
+# x = ['VTR']
+# #
+# search_query = 'SELECT * FROM ' + x[0] + ' WHERE Date <= ' + start_date
+# print(search_query)
 
 
 

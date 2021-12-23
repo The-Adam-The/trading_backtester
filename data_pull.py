@@ -1,7 +1,6 @@
 import pandas as pd
 import pandas.io.sql
 import yfinance as yf
-
 pd.options.mode.chained_assignment = None
 import sqlite3
 
@@ -13,8 +12,6 @@ cursor = connection.cursor()
 
 
 class Scraper:
-
-
 
     def pull_sp500_list(self, number_sp=500):
         tickers_connection = sqlite3.connect('sp500tickers.db')
@@ -44,9 +41,11 @@ class Scraper:
 
         return tickers
 
-    #TODO: Add date functionality
+
+
+
     #TODO: Resolve issue with tickers that contain '.' or '-' BRK-B and BF-B as they cause sql errors
-    def fetch_sp500_data_db(self, asset_names, start_date):
+    def fetch_sp500_data_db(self, asset_names, start_date, end_date):
 
         df_stack = []
         db_list = []
@@ -66,7 +65,8 @@ class Scraper:
 
         for x in db_list:
             try:
-                df = pd.read_sql_query('SELECT * FROM ' + x[0], connection)
+                df = pd.read_sql_query('SELECT * FROM ' + x[0] + ' WHERE Date BETWEEN ' + "date('" + start_date + "') AND date('" + end_date + "')",
+                                       connection)
 
                 amended_x = x[0].replace('TradeData', 'Ticker: ')
                 df_stack.append([amended_x, df])
@@ -74,7 +74,6 @@ class Scraper:
                 continue
             except pandas.io.sql.DatabaseError:
                 continue
-
 
         return df_stack
 
