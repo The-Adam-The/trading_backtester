@@ -9,8 +9,8 @@ from datamanager import Datamanager
 pd.options.mode.chained_assignment = None
 import sqlite3
 
-# connection = sqlite3.connect('sp500tradedata.db')
-# cursor = connection.cursor()
+connection = sqlite3.connect('sp500tradedata.db')
+cursor = connection.cursor()
 
 
 
@@ -22,24 +22,28 @@ data = Datamanager()
 #
 
 #
-# #TODO: Continue implementing macd backtest method
-# #TODO: Graph and calculate total profits based upon investment amount
+# #TODO: Add automatic database updates
 # #TODO: remove issue of overlapping trades
 # #TODO: Add Binance API
 # #TODO: Backtest strategy with Binance
 
-asset_names = scraper.fetch_sp500_tickers()
+
+
+
+
+# asset_names = scraper.fetch_sp500_tickers()
 
 # search_assets = ['TSLA', 'VTR', 'GM']
-search_assets = ['VTR']
-# search_assets = ['All']
-
-
-win_ratio, wins, n_wins, losses, n_losses, all_profit = data.new_back_test('rsi', search_assets)
+# search_assets = ['VTR']
+search_assets = ['all_assets']
+#
+#
+win_ratio, wins, n_wins, losses, n_losses, all_profit, capital = data.new_back_test('rsi', search_assets)
 
 print(f"Win Ratio: {win_ratio}")
 print(f"Wins: {n_wins}")
 print(f"Losses: {n_losses}")
+print(f"Capital: {capital}")
 
 
 

@@ -12,8 +12,6 @@ graph = Graph()
 data_pull = Scraper()
 
 
-
-
 class Datamanager():
 
     def get_macd_signals(self, df):
@@ -33,8 +31,6 @@ class Datamanager():
 
         assets = data_pull.fetch_sp500_data_db(asset_names,start_date)
 
-
-
         matrix_signals = []
         matrix_profits = []
 
@@ -44,7 +40,7 @@ class Datamanager():
                 try:
                     frame = strats.rsi_calc(assets[i][1])
                 except ValueError:
-                    print(f"Frame {i} generated a Value Error")
+                    print(f"Frame {assets[i][0]} generated a Value Error")
                 else:
                     buying_dates = []
                     selling_dates = []
@@ -78,6 +74,9 @@ class Datamanager():
         losses = [i for i in all_profit if i <= 0]
         n_losses = len(losses)
 
+        print(f"Wins: {wins}")
+        print(f"Losses: {losses}")
+
         win_ratio = 0
 
         try:
@@ -86,13 +85,28 @@ class Datamanager():
             print(f"ZeroDivisionError \nNumber of wins: {len(wins)} \nNumber of Trades: {len(all_profit)}")
 
 
-        return win_ratio, wins, n_wins, losses, n_losses, all_profit
+        #TODO: Graph and calculate total profits based upon investment amount
+        capital = 1000
+        trade_amount = capital * 0.1
+
+        for completed_trade in all_profit:
+            if capital <= (capital * 0.9):
+                continue
+            else:
+                capital += trade_amount * completed_trade
 
 
 
 
 
 
+        return win_ratio, wins, n_wins, losses, n_losses, all_profit, capital
+
+
+
+
+
+ #TODO: Continue implementing macd backtest method
 #TODO: Finish adding macd signal
  # if strat == 'macd':
         #
