@@ -4,7 +4,6 @@ from  data_pull import Scraper
 
 asset_data = Scraper()
 
-#TODO: Not happy that yahoo data is pulled here.
 
 class TradingStrats():
 
