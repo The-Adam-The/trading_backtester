@@ -27,7 +27,6 @@ class Datamanager():
 
     def new_back_test(self, strat, asset_names, start_date, end_date):
 
-        print(start_date)
         assets = data_pull.fetch_sp500_data_db(asset_names, start_date, end_date)
 
         matrix_signals = []

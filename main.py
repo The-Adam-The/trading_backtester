@@ -27,7 +27,7 @@ data = Datamanager()
 # #TODO: Add Binance API
 # #TODO: Backtest strategy with Binance
 
-start_date = '2009-01-01'
+start_date = '2008-09-01'
 end_date = datetime_now.strftime('%Y-%m-%d')
 
 
@@ -43,9 +43,9 @@ search_assets = ['VTR']
 
 win_ratio, wins, n_wins, losses, n_losses, all_profit, capital = data.new_back_test('rsi', search_assets, start_date, end_date)
 
-# print(f"Win Ratio: {win_ratio}")
-# print(f"Wins: {n_wins}")
-# print(f"Losses: {n_losses}")
-# print(f"Capital: {capital}")
-#
+print(f"Win Ratio: {win_ratio}")
+print(f"Wins: {n_wins}")
+print(f"Losses: {n_losses}")
+print(f"Capital: {capital}")
+
 

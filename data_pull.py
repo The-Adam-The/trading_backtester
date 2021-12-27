@@ -8,9 +8,6 @@ import sqlite3
 connection = sqlite3.connect('sp500tradedata.db')
 cursor = connection.cursor()
 
-#TODO: Update databases with latest information
-
-
 class Scraper:
 
     def pull_sp500_list(self, number_sp=500):
@@ -40,17 +37,28 @@ class Scraper:
                 tickers.append(ticker)
 
         return tickers
-    #TODO: Update sqlite table with additional data
-    def pull_yahoo_data(self, assets):
+
+    def pull_yahoo_data(self, assets, df_stack):
 
         for asset in assets:
-            ydf = yf.download(asset[0], start=asset[1], end=asset[2])
-            print(ydf)
+
+            ydf1 = yf.download(asset[0], start=asset[1], end=asset[2])
+            ydf2 = yf.download(asset[0], start=asset[3], end=asset[4])
+
+            frames = [ydf1, ydf2]
+
+            ydf = pd.concat(frames)
+            ydf.to_sql(asset[0], connection, if_exists='append')
+
+            for df in df_stack:
+                if df[0] == asset[0]:
+                    frames.append(df[1])
+                    df[1] = pd.concat(frames)
+
+        return df_stack
 
 
 
-    #TODO: Remove unnecessary data pull from yahoo by finding diffrence between dates of data possesed and requested
-    #Data_requested = data_needed
     #TODO: Resolve issue with tickers that contain '.' or '-' BRK-B and BF-B as they cause sql errors
     def fetch_sp500_data_db(self, asset_names, start_date, end_date):
 
@@ -67,7 +75,7 @@ class Scraper:
                 for db_name in connection.execute('SELECT name FROM sqlite_master WHERE type="table" ORDER BY name').fetchall():
 
                     if db_name[0] == asset_name:
-                        print(f"Database Found for {db_name[0]}")
+                        print(f"Database Found for {db_name[0]}\n")
                         db_list.append(db_name)
 
 
@@ -79,10 +87,21 @@ class Scraper:
                 amended_tail = df.tail(1)['Date'].values[0][0:10]
                 amended_head = df.head(1)['Date'].values[0][0:10]
 
-                if amended_tail < end_date or amended_head > start_date:
-                    print(f"Database out of date.\nEarliest data Entry:{amended_head}\nLatest data entry:{amended_tail}")
-                    date_range_out.append([x[0], start_date, end_date])
+                temp_list = []
 
+                #TODO: Amend pull to reflect weekends and bank holidays
+                if amended_tail < end_date:
+                    print(f"End date not available on Database for {x[0]}. End date: {end_date} Latest database entry: {amended_tail}\n")
+                    temp_list.append(amended_tail)
+                    temp_list.append(end_date)
+
+                if amended_head > start_date:
+                    print(f"Start date not available on Database for {x[0]}. Start_date: {start_date}. Earliest data entry: {amended_head}\n")
+                    temp_list.append(start_date)
+                    temp_list.append(amended_head)
+
+                temp_list.insert(0, x[0])
+                date_range_out.append(temp_list)
                 df_stack.append([x[0], df])
 
             except sqlite3.Error as e:
@@ -92,7 +111,7 @@ class Scraper:
 
         additional_data_input = input(f"Your stored data is out of range from the dates selected for {len(date_range_out)} asset(s). Do you want to try and pull additional data(y/n)?")
         if additional_data_input.lower() == 'y':
-            self.pull_yahoo_data(date_range_out)
+            df_stack = self.pull_yahoo_data(date_range_out, df_stack)
 
         return df_stack
 
