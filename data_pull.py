@@ -81,7 +81,7 @@ class Scraper:
 
         for x in db_list:
             try:
-                df = pd.read_sql_query('SELECT * FROM ' + x[0] + ' WHERE Date BETWEEN ' + "date('" + start_date + "') AND date('" + end_date + "')",
+                df = pd.read_sql_query("SELECT * FROM " + x[0] + " WHERE Date BETWEEN " + "date('" + start_date + "') AND date('" + end_date + "')",
                                        connection)
 
                 amended_tail = df.tail(1)['Date'].values[0][0:10]
@@ -108,8 +108,9 @@ class Scraper:
                 continue
             except pandas.io.sql.DatabaseError:
                 continue
-
-        additional_data_input = input(f"Your stored data is out of range from the dates selected for {len(date_range_out)} asset(s). Do you want to try and pull additional data(y/n)?")
+        #
+        # additional_data_input = input(f"Your stored data is out of range from the dates selected for {len(date_range_out)} asset(s). Do you want to try and pull additional data(y/n)?")
+        additional_data_input = "n"
         if additional_data_input.lower() == 'y':
             df_stack = self.pull_yahoo_data(date_range_out, df_stack)
 

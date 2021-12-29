@@ -12,8 +12,6 @@ import datetime
 
 
 datetime_now = datetime.datetime.now()
-
-
 connection = sqlite3.connect('sp500tradedata.db')
 cursor = connection.cursor()
 scraper = Scraper()
@@ -22,13 +20,14 @@ data = Datamanager()
 # graph = Graph()
 
 
+start_date = "2008-09-01"
+end_date = datetime_now.strftime('%Y-%m-%d')
+
 # #TODO: Add automatic database updates
 # #TODO: remove issue of overlapping trades
 # #TODO: Add Binance API
 # #TODO: Backtest strategy with Binance
 
-start_date = '2008-09-01'
-end_date = datetime_now.strftime('%Y-%m-%d')
 
 
 
@@ -39,13 +38,28 @@ search_assets = ['VTR']
 
 
 
-# asset_names = scraper.fetch_sp500_tickers()
 
-win_ratio, wins, n_wins, losses, n_losses, all_profit, capital = data.new_back_test('rsi', search_assets, start_date, end_date)
+win_ratio, n_total_wins, n_total_losses, matrix_profits, capital = data.new_back_test('rsi', search_assets, start_date, end_date)
 
-print(f"Win Ratio: {win_ratio}")
-print(f"Wins: {n_wins}")
-print(f"Losses: {n_losses}")
-print(f"Capital: {capital}")
+print(f"""
+Aggregate Outcome:
 
+Win Ratio: {win_ratio}
+Wins: {n_total_wins}
+Losses: {n_total_losses}
+Capital: {capital}
+
+""")
+
+
+print("Breakdown for individual Assets")
+for asset in matrix_profits:
+
+    print(f"""
+    Asset: {asset['asset']}
+    Wins: {asset['n winning trades']}
+    Losses: {asset['n losing trades']}
+    Success Ratio: {asset['success ratio']}
+
+    """)
 

@@ -24,28 +24,36 @@ class Datamanager():
                 selling_dates.append(i)
 
 
-
+    #TODO: Add additional parameters such amount of capital, amount per trade, etc...
+    #TODO: Add sort mechanism that shows best performing assets
     def new_back_test(self, strat, asset_names, start_date, end_date):
-
+        #TODO: Amend back_test data so data is grouped by asset. Allows more in depth breakdowns
         assets = data_pull.fetch_sp500_data_db(asset_names, start_date, end_date)
 
         matrix_signals = []
         matrix_profits = []
+        all_profit = []
+
 
         if strat == 'rsi':
 
-            for i in range(len(assets)):
+            for n in range(len(assets)):
+
                 try:
-                    frame = strats.rsi_calc(assets[i][1])
+                    frame = strats.rsi_calc(assets[n][1])
+
+
                 except ValueError:
-                    print(f"Frame {assets[i][0]} generated a Value Error")
+                    print(f"Frame {assets[n][0]} generated a Value Error")
                 else:
                     buying_dates = []
                     selling_dates = []
 
                     for i in range(len(frame) - 11):
+
                         if "Yes" in frame['Buy'].iloc[i]:
                             buying_dates.append(frame.iloc[i + 1].name)
+
                             for j in range(1, 11):
                                 if frame['RSI'].iloc[i + j] > 40:
                                     selling_dates.append(frame.iloc[i + j + 1].name)
@@ -53,52 +61,72 @@ class Datamanager():
                                 elif j == 10:
                                     selling_dates.append(frame.iloc[i + j + 1].name)
 
-                    profits = (frame.loc[selling_dates].Open.values - frame.loc[buying_dates].Open.values) / frame.loc[buying_dates].Open.values
-                    matrix_signals.append(buying_dates)
-                    matrix_profits.append(profits)
+                    profit = (frame.loc[selling_dates].Open.values -
+                                                frame.loc[buying_dates].Open.values) / frame.loc[buying_dates].Open.values
 
 
-        all_profit = []
+                    d = {'buy date': frame.loc[buying_dates].Date.values,
+                         'sell date': frame.loc[selling_dates].Date.values,
+                          'profit': profit
+                         }
+                    profit_df = pd.DataFrame(data=d)
 
-        for i in matrix_profits:
-            if strat == 'rsi':
-                for e in i:
-                    all_profit.append(e)
-            else:
-                all_profit.append(i)
 
-        wins = [i for i in all_profit if i > 0]
-        n_wins = len(wins)
-        losses = [i for i in all_profit if i <= 0]
-        n_losses = len(losses)
+                    buy_dict = {'asset':assets[n][0],
+                                'buying dates': buying_dates
+                                }
+                    profit_dict = {'asset': assets[n][0],
+                                   'all trades': profit_df
+                                   }
+                    matrix_signals.append(buy_dict)
+                    matrix_profits.append(profit_dict)
 
-        print(f"Wins: {wins}")
-        print(f"Losses: {losses}")
+        total_wins = []
+        total_losses = []
 
-        win_ratio = 0
+        for asset_array in (matrix_profits):
+
+            asset_array['all trades']['winning trades'] = ["yes" if x > 0 else 'no' for x in asset_array['all trades']['profit']]
+            asset_array['n winning trades'] = len(asset_array['all trades'].loc[asset_array['all trades']['winning trades'] != "no"])
+            asset_array['n losing trades'] = len(asset_array['all trades'].loc[asset_array['all trades']['winning trades'] != "yes"])
+
+            try:
+                asset_array['success ratio'] = asset_array['n winning trades'] / asset_array['n losing trades']
+            except ZeroDivisionError:
+                print(f"ZeroDivision Error for asset: {asset_array['asset']}")
+                asset_array["success ratio"] = 0
+
+            total_wins.extend(x for x in asset_array['all trades']['profit'] if x > 0)
+            total_losses.extend(x for x in asset_array['all trades']['profit'] if x < 0)
+
+        print(matrix_profits)
+
+        n_total_wins = len(total_wins)
+        n_total_losses = len(total_losses)
+
+        total_win_ratio = 0
 
         try:
-            win_ratio = len(wins) / len(all_profit)
+            total_win_ratio = n_total_wins / n_total_losses
+
         except ZeroDivisionError:
-            print(f"ZeroDivisionError \nNumber of wins: {len(wins)} \nNumber of Trades: {len(all_profit)}")
+            print(f"ZeroDivisionError \nNumber of wins: {len(n_total_wins)} \nNumber of Trades: {len(all_profit)}")
 
-
-        #TODO: Graph and calculate total profits based upon investment amount
+        #TODO: Provide break down of profits/losses per asset
+        #TODO: Fix capital equation
         capital = 1000
-        trade_amount = capital * 0.1
+        # trade_amount = capital * 0.1
+        #
+        # for completed_trades in matrix_profits:
+        #
+        #     for trades in completed_trades[1]:
+        #         if capital <= (capital * 0.9):
+        #             continue
+        #         else:
+        #
+        #             capital += trade_amount * trades
 
-        for completed_trade in all_profit:
-            if capital <= (capital * 0.9):
-                continue
-            else:
-                capital += trade_amount * completed_trade
-
-
-
-
-
-
-        return win_ratio, wins, n_wins, losses, n_losses, all_profit, capital
+        return total_win_ratio, n_total_wins, n_total_losses, matrix_profits, capital
 
 
 
