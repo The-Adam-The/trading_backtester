@@ -1,5 +1,6 @@
 import pandas as pd
 pd.options.mode.chained_assignment = None
+
 from trading_strats import TradingStrats
 from graphing import Graph
 from  data_pull import Scraper
@@ -24,10 +25,69 @@ class Datamanager():
                 selling_dates.append(i)
 
 
-    #TODO: Add additional parameters such amount of capital, amount per trade, etc...
+    #TODO: Add additional parameters amount per trade, etc...
     #TODO: Add sort mechanism that shows best performing assets
-    def new_back_test(self, strat, asset_names, start_date, end_date):
-        #TODO: Amend back_test data so data is grouped by asset. Allows more in depth breakdowns
+
+    def capital_calc(self, capital, matrix_profits, trade_fees, exposed_capital_perc=0.1):
+
+        permitted_number_active_trades = 10
+        current_exposed_capital = 0
+        exposed_capital_limit = capital * exposed_capital_perc
+        reserve_capital_perc = (1 - exposed_capital_perc)
+        reserve_capital = capital * reserve_capital_perc
+
+        all_trades_frames = []
+        active_trades = []
+
+        #creates a new dataframe that the capital calc can use to run through trade dates to ensure no overlapping trades
+        for asset in matrix_profits:
+
+            asset['all trades']['asset ticker'] = [asset['asset'] for x in range(len(asset['all trades']))]
+            asset['all trades']['trade taken'] = ['NaN' for x in range(len(asset['all trades']))]
+            all_trades_frames.append(asset['all trades'])
+
+        all_trades_df = pd.concat(all_trades_frames)
+        all_trades_df = all_trades_df.sort_values(by='buy date', ascending=True)
+        all_trades_df = all_trades_df[['asset ticker', 'buy date', 'sell date', 'profit', 'trade taken']]
+        all_trades_df = all_trades_df.reset_index()
+
+
+        #todo: finish  the completed trades loop, it needs to pop the relevant row from the frame.
+        for i in range(len(all_trades_df)):
+
+            completed_trades = [x.index for x in active_trades if
+                                all_trades_df.loc[i]['buy date'] >= x['sell date']]
+
+            print(completed_trades)
+
+            print(f"Amount of capital exposed: {current_exposed_capital}")
+            print(f"Capital Exposure Limit as a faction: {exposed_capital_perc}")
+            print(f"Capital Exposure limit value: {capital * exposed_capital_perc}")
+            print(f"Number of active trades: {active_trades}")
+            print(f"Number of completed trades: {completed_trades}")
+
+
+            if current_exposed_capital >= (capital * exposed_capital_perc):
+                print(f"Amount of capital exposure is too high. Percentage of capital exposed: {current_exposed_capital / capital * 100}. Trade aborted. ")
+                all_trades_df.loc[i]['trade taken'] = 'no'
+
+            if len(active_trades) >= permitted_number_active_trades:
+                print(f"No more active trades permitted. Number of trades permitted: {permitted_number_active_trades}, Number of active trades: {len(active_trades)}")
+                all_trades_df.loc[i]['trade taken'] = 'no'
+
+            else:
+                all_trades_df.loc[i]['trade taken'] = 'yes'
+                active_trades.append(all_trades_df.loc[i])
+
+
+
+
+
+
+        return capital
+
+    def new_back_test(self, strat, asset_names, start_date, end_date, capital=1000, trade_fees=0):
+
         assets = data_pull.fetch_sp500_data_db(asset_names, start_date, end_date)
 
         matrix_signals = []
@@ -99,7 +159,7 @@ class Datamanager():
             total_wins.extend(x for x in asset_array['all trades']['profit'] if x > 0)
             total_losses.extend(x for x in asset_array['all trades']['profit'] if x < 0)
 
-        print(matrix_profits)
+
 
         n_total_wins = len(total_wins)
         n_total_losses = len(total_losses)
@@ -113,18 +173,8 @@ class Datamanager():
             print(f"ZeroDivisionError \nNumber of wins: {len(n_total_wins)} \nNumber of Trades: {len(all_profit)}")
 
         #TODO: Provide break down of profits/losses per asset
-        #TODO: Fix capital equation
-        capital = 1000
-        # trade_amount = capital * 0.1
-        #
-        # for completed_trades in matrix_profits:
-        #
-        #     for trades in completed_trades[1]:
-        #         if capital <= (capital * 0.9):
-        #             continue
-        #         else:
-        #
-        #             capital += trade_amount * trades
+
+        self.capital_calc(capital, matrix_profits, trade_fees)
 
         return total_win_ratio, n_total_wins, n_total_losses, matrix_profits, capital
 

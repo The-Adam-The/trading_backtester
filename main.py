@@ -32,8 +32,8 @@ end_date = datetime_now.strftime('%Y-%m-%d')
 
 
 
-# search_assets = ['TSLA', 'VTR', 'GM']
-search_assets = ['VTR']
+search_assets = ['TSLA', 'VTR', 'GM']
+# search_assets = ['VTR']
 # search_assets = ['all_assets']
 
 
@@ -41,25 +41,25 @@ search_assets = ['VTR']
 
 win_ratio, n_total_wins, n_total_losses, matrix_profits, capital = data.new_back_test('rsi', search_assets, start_date, end_date)
 
-print(f"""
-Aggregate Outcome:
+# print(f"""
+# Aggregate Outcome:
+#
+# Win Ratio: {win_ratio}
+# Wins: {n_total_wins}
+# Losses: {n_total_losses}
+# Capital: {capital}
+#
+# """)
+#
+#
+# print("Breakdown for individual Assets")
+# for asset in matrix_profits:
 
-Win Ratio: {win_ratio}
-Wins: {n_total_wins}
-Losses: {n_total_losses}
-Capital: {capital}
-
-""")
-
-
-print("Breakdown for individual Assets")
-for asset in matrix_profits:
-
-    print(f"""
-    Asset: {asset['asset']}
-    Wins: {asset['n winning trades']}
-    Losses: {asset['n losing trades']}
-    Success Ratio: {asset['success ratio']}
-
-    """)
+    # print(f"""
+    # Asset: {asset['asset']}
+    # Wins: {asset['n winning trades']}
+    # Losses: {asset['n losing trades']}
+    # Success Ratio: {asset['success ratio']}
+    #
+    # """)
 
