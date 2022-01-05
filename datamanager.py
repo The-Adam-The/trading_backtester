@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from trading_strats import TradingStrats
 from graphing import Graph
-from data_pull import Scraper
+from data_pull import DataPull
 import sqlite3
 
 pd.options.mode.chained_assignment = None
@@ -11,34 +11,38 @@ connection = sqlite3.connect('TradingData.db')
 cursor = connection.cursor()
 strats = TradingStrats()
 graph = Graph()
-data_pull = Scraper()
+data_pull = DataPull()
 
 
 class DataManager:
     #TODO: Add additional parameters amount per trade, etc...
     #TODO: Add sort mechanism that shows best performing assets
 
-    def capital_calculation(self, total_liquidity, matrix_profits, buy_fees=0, sell_fees=0, exposed_capital_perc=0.1,
-                            permitted_number_active_trades=10):
+    def create_dataframe(self, matrix_profits):
 
         all_trades_frames = []
-        active_trade_indexes = []
-        completed_trade_index = []
 
-        #creates a new dataframe that the capital calc can use to run through trade dates to ensure no overlapping trades
+        # creates a new dataframe that the capital calc can use to run through trade dates to ensure no overlapping trades
         for asset in matrix_profits:
-
             asset['all trades']['asset ticker'] = [asset['asset'] for _ in range(len(asset['all trades']))]
             asset['all trades']['trade active'] = [None for _ in range(len(asset['all trades']))]
             asset['all trades']['amount invested'] = [np.nan for _ in range(len(asset['all trades']))]
             asset['all trades']['amount disinvested'] = [np.nan for _ in range(len(asset['all trades']))]
             asset['all trades']['profit($)'] = [np.nan for _ in range(len(asset['all trades']))]
-            asset['all trades']['profit($)'] = [np.nan for _ in range(len(asset['all trades']))]
+            asset['all trades']['Portfolio Value'] = [np.nan for _ in range(len(asset['all trades']))]
             all_trades_frames.append(asset['all trades'])
 
         all_trades_df = pd.concat(all_trades_frames)
         all_trades_df = all_trades_df.sort_values(by='buy date', ascending=True)
         all_trades_df = all_trades_df.reset_index(drop='index')
+
+        return all_trades_df
+
+    def capital_calculation(self, total_liquidity, all_trades_df, buy_fees, sell_fees, exposed_capital_perc,
+                            permitted_number_active_trades):
+
+        active_trade_indexes = []
+        completed_trade_index = []
 
         # initial variables
         value_equities = 0
@@ -82,26 +86,22 @@ class DataManager:
                 all_trades_df.at[i, 'amount invested'] = value_per_trade - buy_fees
                 print(f"Trade Performed. Amount invested: {all_trades_df.loc[i]['amount invested']}")
                 value_equities += all_trades_df.loc[i]['amount invested']
-                print(f"current_exposed_capital buy: {value_equities}")
                 total_liquidity -= all_trades_df.loc[i]['amount invested']
                 print(f"reserve_capital buy: {reserve_capital}")
                 active_trade_indexes.append(i)
 
 
 
-        print(f"Amount of capital exposed: {value_equities}")
-        print(f"Capital Exposure Limit as a fraction: {exposed_capital_perc}")
-        print(f"Capital Exposure limit value: {total_liquidity * exposed_capital_perc}")
-        print(f"Number of outstanding trades: {len(active_trade_indexes)}")
+        # print(f"Amount of capital exposed: {value_equities}")
+        # print(f"Capital Exposure Limit as a fraction: {exposed_capital_perc}")
+        # print(f"Capital Exposure limit value: {total_liquidity * exposed_capital_perc}")
+        # print(f"Number of outstanding trades: {len(active_trade_indexes)}")
 
-        print(all_trades_df.to_string())
         return all_trades_df
 
-    def back_test(self, strat, asset_names, start_date, end_date, capital=1000):
+    #TODO: Add custom parameters for RSI parameters
 
-        assets = data_pull.fetch_sp500_data_db(asset_names, start_date, end_date)
-
-        if strat == 'rsi':
+    def rsi_back_test(self, assets):
 
             matrix_signals = []
             matrix_profits = []
@@ -150,6 +150,10 @@ class DataManager:
                     matrix_signals.append(buy_dict)
                     matrix_profits.append(profit_dict)
 
+            return matrix_signals, matrix_profits
+
+    def back_test_evaluation(self, matrix_profits):
+
         total_wins = []
         total_losses = []
 
@@ -181,6 +185,9 @@ class DataManager:
 
         #TODO: Provide break down of profits/losses per asset
 
-        self.capital_calculation(capital, matrix_profits)
-
-        return total_win_ratio, n_total_wins, n_total_losses, matrix_profits, capital
+        total_portfolio_performance = {
+            "Win/loss ratio": total_win_ratio,
+            "Total Number of Wins": n_total_wins,
+            "Total Number of Losses": n_total_losses
+        }
+        return total_portfolio_performance, matrix_profits

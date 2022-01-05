@@ -1,8 +1,8 @@
 import pandas as pd
 import yfinance as yf
-from  data_pull import Scraper
+from  data_pull import DataPull
 
-asset_data = Scraper()
+asset_data = DataPull()
 
 
 class TradingStrats():

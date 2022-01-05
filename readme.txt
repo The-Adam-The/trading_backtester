@@ -21,3 +21,18 @@ I shall be reviewing that video and updating this bot with its functionality.
 
 I want to use this bot on a crypto exchange, and will begin work converting it once I have a mvp. Should be interesting to see what
 can be done.
+
+Development:
+
+Features:
+#TODO: Add MACD
+#TODO: Finish adding graph functions
+#TODO: Backtest strategy with Binance
+#TODO: Add actual live bot functionality
+Fixes:
+#TODO: investigate and remove any potential of overlapping trades (requires testing)
+QOL:
+#TODO: Add automatic database updates
+
+
+

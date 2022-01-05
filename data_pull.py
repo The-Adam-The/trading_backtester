@@ -8,7 +8,10 @@ import sqlite3
 connection = sqlite3.connect('sp500tradedata.db')
 cursor = connection.cursor()
 
-class Scraper:
+
+#TODO: Store produced data to SQL db
+
+class DataPull:
 
     def pull_sp500_list(self, number_sp=500):
         tickers_connection = sqlite3.connect('sp500tickers.db')
